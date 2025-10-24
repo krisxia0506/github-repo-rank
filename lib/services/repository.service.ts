@@ -276,3 +276,34 @@ export async function getRepositoriesByLanguage(language: string, limit: number 
   if (error) throw error
   return data
 }
+
+/**
+ * Get the last sync time from the most recent successful sync
+ */
+export async function getLastSyncTime() {
+  const supabase = await createServerClient()
+
+  // First try to get from sync_logs
+  const { data: syncLog } = await supabase
+    .from('sync_logs')
+    .select('completed_at')
+    .eq('status', 'success')
+    .order('completed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (syncLog?.completed_at) {
+    return syncLog.completed_at
+  }
+
+  // If no sync logs, get the most recent last_synced_at from repositories
+  const { data: repo } = await supabase
+    .from('repositories')
+    .select('last_synced_at')
+    .not('last_synced_at', 'is', null)
+    .order('last_synced_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  return repo?.last_synced_at || null
+}

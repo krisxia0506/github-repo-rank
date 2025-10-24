@@ -1,20 +1,54 @@
 import Link from 'next/link'
-import { getRepositoriesWithStats } from '@/lib/services/repository.service'
+import { getRepositoriesWithStats, getLastSyncTime } from '@/lib/services/repository.service'
 import { RankingList } from '@/components/RankingList'
 import { CyberBackground } from '@/components/CyberBackground'
 
 export const revalidate = 3600 // Revalidate every hour
 
+function formatLastSyncTime(dateString: string | null): { full: string; relative: string } {
+  if (!dateString) return { full: '暂无数据', relative: '' }
+
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  let relative = ''
+  if (diffMins < 1) relative = '刚刚'
+  else if (diffMins < 60) relative = `${diffMins}分钟前`
+  else if (diffHours < 24) relative = `${diffHours}小时前`
+  else if (diffDays < 7) relative = `${diffDays}天前`
+  else relative = `${diffDays}天前`
+
+  const full = date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  })
+
+  return { full, relative }
+}
+
 export default async function Home() {
   let repositories: any[] = []
   let error: string | null = null
+  let lastSyncTime: string | null = null
 
   try {
     repositories = await getRepositoriesWithStats()
+    lastSyncTime = await getLastSyncTime()
   } catch (e) {
     error = e instanceof Error ? e.message : 'Failed to load repositories'
     console.error('Error fetching repositories:', e)
   }
+
+  const lastSyncDisplay = formatLastSyncTime(lastSyncTime)
 
   return (
     <main className="min-h-screen cyber-grid relative" style={{ background: 'linear-gradient(135deg, #0a0e1a 0%, #0f1419 50%, #0a0e1a 100%)' }}>
@@ -75,6 +109,20 @@ export default async function Home() {
                     borderColor: '#00d9ff',
                     background: 'rgba(0, 217, 255, 0.1)'
                   }}>自动更新</span>
+                  <span className="text-xs px-2 py-1 rounded border flex items-center gap-1.5" style={{
+                    color: '#b8c5e0',
+                    borderColor: 'rgba(0, 217, 255, 0.3)',
+                    background: 'rgba(0, 217, 255, 0.05)'
+                  }}>
+                    <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{
+                      background: '#00ff41',
+                      boxShadow: '0 0 4px #00ff41'
+                    }} />
+                    <span>最后更新: {lastSyncDisplay.full}</span>
+                    {lastSyncDisplay.relative && (
+                      <span style={{ color: '#00ff41' }}>({lastSyncDisplay.relative})</span>
+                    )}
+                  </span>
                 </div>
               </div>
             </div>
