@@ -21,6 +21,17 @@ interface Repository {
   stars_rank: number | null
   commits_rank: number | null
   forks_rank: number | null
+  // 数据库字段
+  watchers_count?: number | null
+  open_issues_count?: number | null
+  open_prs_count?: number | null
+  branches_count?: number | null
+  releases_count?: number | null
+  commits_last_week?: number | null
+  // 新增排名字段
+  issues_rank?: number | null
+  prs_rank?: number | null
+  branches_rank?: number | null
 }
 
 interface RankingListProps {
@@ -28,7 +39,7 @@ interface RankingListProps {
 }
 
 export function RankingList({ initialRepositories }: RankingListProps) {
-  const [activeTab, setActiveTab] = useState<'stars' | 'commits' | 'forks'>('stars')
+  const [activeTab, setActiveTab] = useState<'stars' | 'commits' | 'issues' | 'prs' | 'branches'>('stars')
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
 
   // Extract unique languages
@@ -42,7 +53,7 @@ export function RankingList({ initialRepositories }: RankingListProps) {
     return Array.from(langs).sort()
   }, [initialRepositories])
 
-  // Filter and sort repositories
+  // Filter and sort repositories with dynamic ranking
   const filteredRepositories = useMemo(() => {
     let repos = initialRepositories
 
@@ -52,20 +63,76 @@ export function RankingList({ initialRepositories }: RankingListProps) {
     }
 
     // Sort by active tab
-    return repos.sort((a, b) => {
-      const aValue = activeTab === 'stars'
-        ? a.stars_count
-        : activeTab === 'commits'
-        ? a.commits_count
-        : a.forks_count
-      const bValue = activeTab === 'stars'
-        ? b.stars_count
-        : activeTab === 'commits'
-        ? b.commits_count
-        : b.forks_count
+    const sortedRepos = repos.sort((a, b) => {
+      let aValue: number | null | undefined
+      let bValue: number | null | undefined
+
+      switch (activeTab) {
+        case 'stars':
+          aValue = a.stars_count
+          bValue = b.stars_count
+          break
+        case 'commits':
+          aValue = a.commits_count
+          bValue = b.commits_count
+          break
+        case 'issues':
+          aValue = a.open_issues_count
+          bValue = b.open_issues_count
+          break
+        case 'prs':
+          aValue = a.open_prs_count
+          bValue = b.open_prs_count
+          break
+        case 'branches':
+          aValue = a.branches_count
+          bValue = b.branches_count
+          break
+        default:
+          aValue = a.stars_count
+          bValue = b.stars_count
+      }
 
       return (bValue || 0) - (aValue || 0)
     })
+
+    // Calculate dynamic ranks for issues, prs, and branches
+    if (activeTab === 'issues' || activeTab === 'prs' || activeTab === 'branches') {
+      let currentRank = 1
+      let previousValue: number | null = null
+
+      return sortedRepos.map((repo, index) => {
+        let currentValue: number | null = null
+
+        switch (activeTab) {
+          case 'issues':
+            currentValue = repo.open_issues_count ?? null
+            break
+          case 'prs':
+            currentValue = repo.open_prs_count ?? null
+            break
+          case 'branches':
+            currentValue = repo.branches_count ?? null
+            break
+        }
+
+        // Update rank if value changed
+        if (index > 0 && currentValue !== previousValue) {
+          currentRank = index + 1
+        }
+
+        previousValue = currentValue
+
+        // Assign dynamic rank
+        const rankField = `${activeTab}_rank` as 'issues_rank' | 'prs_rank' | 'branches_rank'
+        return {
+          ...repo,
+          [rankField]: currentValue !== null ? currentRank : null
+        }
+      })
+    }
+
+    return sortedRepos
   }, [initialRepositories, selectedLanguage, activeTab])
 
   return (
