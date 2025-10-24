@@ -40,12 +40,9 @@ interface RankingListProps {
 export function RankingList({ initialRepositories }: RankingListProps) {
   const [activeTab, setActiveTab] = useState<'stars' | 'commits' | 'issues' | 'prs' | 'branches'>('stars')
 
-  // Filter and sort repositories with dynamic ranking
+  // Sort repositories by active tab
   const filteredRepositories = useMemo(() => {
-    let repos = initialRepositories
-
-    // Sort by active tab
-    const sortedRepos = repos.sort((a, b) => {
+    return [...initialRepositories].sort((a, b) => {
       let aValue: number | null | undefined
       let bValue: number | null | undefined
 
@@ -77,44 +74,6 @@ export function RankingList({ initialRepositories }: RankingListProps) {
 
       return (bValue || 0) - (aValue || 0)
     })
-
-    // Calculate dynamic ranks for issues, prs, and branches
-    if (activeTab === 'issues' || activeTab === 'prs' || activeTab === 'branches') {
-      let currentRank = 1
-      let previousValue: number | null = null
-
-      return sortedRepos.map((repo, index) => {
-        let currentValue: number | null = null
-
-        switch (activeTab) {
-          case 'issues':
-            currentValue = repo.open_issues_count ?? null
-            break
-          case 'prs':
-            currentValue = repo.open_prs_count ?? null
-            break
-          case 'branches':
-            currentValue = repo.branches_count ?? null
-            break
-        }
-
-        // Update rank if value changed
-        if (index > 0 && currentValue !== previousValue) {
-          currentRank = index + 1
-        }
-
-        previousValue = currentValue
-
-        // Assign dynamic rank
-        const rankField = `${activeTab}_rank` as 'issues_rank' | 'prs_rank' | 'branches_rank'
-        return {
-          ...repo,
-          [rankField]: currentValue !== null ? currentRank : null
-        }
-      })
-    }
-
-    return sortedRepos
   }, [initialRepositories, activeTab])
 
   return (
