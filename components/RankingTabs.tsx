@@ -7,9 +7,9 @@ interface RankingTabsProps {
 
 export function RankingTabs({ activeTab, onTabChange }: RankingTabsProps) {
   const tabs = [
-    { id: 'stars' as const, label: 'Stars', icon: '⭐' },
-    { id: 'commits' as const, label: 'Commits', icon: '💻' },
-    { id: 'forks' as const, label: 'Forks', icon: '🔱' },
+    { id: 'stars' as const, label: 'Star 数', icon: '⭐' },
+    { id: 'commits' as const, label: '提交数', icon: '💻' },
+    { id: 'forks' as const, label: 'Fork 数', icon: '🔱' },
   ]
 
   return (

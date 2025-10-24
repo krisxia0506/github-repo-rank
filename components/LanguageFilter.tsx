@@ -10,7 +10,7 @@ export function LanguageFilter({ languages, selectedLanguage, onLanguageChange }
   return (
     <div className="mb-6">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        Filter by Language
+        按语言筛选
       </label>
       <div className="flex flex-wrap gap-2">
         <button
@@ -23,7 +23,7 @@ export function LanguageFilter({ languages, selectedLanguage, onLanguageChange }
             }
           `}
         >
-          All
+          全部
         </button>
         {languages.map((language) => (
           <button

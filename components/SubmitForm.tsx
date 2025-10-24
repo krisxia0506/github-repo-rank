@@ -58,7 +58,7 @@ export function SubmitForm() {
           htmlFor="repoUrl"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
-          GitHub Repository URL *
+          GitHub 仓库 URL *
         </label>
         <input
           type="text"
@@ -66,12 +66,12 @@ export function SubmitForm() {
           required
           value={formData.repoUrl}
           onChange={(e) => setFormData({ ...formData, repoUrl: e.target.value })}
-          placeholder="https://github.com/owner/repo or owner/repo"
+          placeholder="https://github.com/owner/repo 或 owner/repo"
           className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           disabled={isSubmitting}
         />
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Enter the full GitHub URL or just owner/repo format
+          输入完整的 GitHub URL 或仅输入 owner/repo 格式
         </p>
       </div>
 
@@ -81,7 +81,7 @@ export function SubmitForm() {
           htmlFor="inviteCode"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
-          Invite Code *
+          邀请码 *
         </label>
         <input
           type="text"
@@ -89,12 +89,12 @@ export function SubmitForm() {
           required
           value={formData.inviteCode}
           onChange={(e) => setFormData({ ...formData, inviteCode: e.target.value })}
-          placeholder="Enter your invite code"
+          placeholder="输入您的邀请码"
           className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           disabled={isSubmitting}
         />
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          You need a valid invite code to submit a repository
+          您需要一个有效的邀请码来提交仓库
         </p>
       </div>
 
@@ -109,7 +109,7 @@ export function SubmitForm() {
       {success && (
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
           <p className="text-sm text-green-800 dark:text-green-200">
-            Repository submitted successfully! Redirecting...
+            仓库提交成功！正在跳转...
           </p>
         </div>
       )}
@@ -120,19 +120,19 @@ export function SubmitForm() {
         disabled={isSubmitting || success}
         className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors"
       >
-        {isSubmitting ? 'Submitting...' : success ? 'Success!' : 'Submit Repository'}
+        {isSubmitting ? '提交中...' : success ? '成功！' : '提交仓库'}
       </button>
 
       {/* Info Box */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-2">
-          What happens next?
+          接下来会发生什么？
         </h3>
         <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-disc list-inside">
-          <li>We will validate your invite code</li>
-          <li>Fetch the repository data from GitHub</li>
-          <li>Add it to the ranking with real-time statistics</li>
-          <li>The repository will appear on the homepage immediately</li>
+          <li>我们将验证您的邀请码</li>
+          <li>从 GitHub 获取仓库数据</li>
+          <li>将其添加到带有实时统计数据的排行榜</li>
+          <li>该仓库将立即出现在首页</li>
         </ul>
       </div>
     </form>

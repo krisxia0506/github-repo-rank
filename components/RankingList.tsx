@@ -91,7 +91,7 @@ export function RankingList({ initialRepositories }: RankingListProps) {
           ))
         ) : (
           <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-            No repositories found
+            未找到仓库
           </div>
         )}
       </div>

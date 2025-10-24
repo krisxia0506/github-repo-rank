@@ -36,7 +36,7 @@ export function RepositoryCard({ repository, showRank = true, rankType = 'stars'
         addSuffix: true,
         locale: zhCN,
       })
-    : 'Unknown'
+    : '未知'
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
@@ -101,7 +101,7 @@ export function RepositoryCard({ repository, showRank = true, rankType = 'stars'
       </div>
 
       <div className="text-xs text-gray-400 dark:text-gray-500">
-        Last commit: {lastCommitText}
+        最后提交：{lastCommitText}
       </div>
     </div>
   )

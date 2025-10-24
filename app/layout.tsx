@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GitHub Repo Ranking",
-  description: "Real-time GitHub repository ranking dashboard",
+  title: "七牛云第四届黑客松 - GitHub 仓库排行榜",
+  description: "七牛云第四届黑客松项目实时排行榜",
 };
 
 export default function RootLayout({
