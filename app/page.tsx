@@ -88,11 +88,19 @@ export default async function Home() {
                 </div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold glitch-effect" style={{
+                <h1 className="text-2xl font-bold glitch-effect flex items-center gap-3" style={{
                   color: '#ffffff',
                   textShadow: '0 0 5px rgba(0, 255, 65, 0.5), 0 0 10px rgba(0, 217, 255, 0.3), 2px 2px 0px rgba(0, 217, 255, 0.5)'
                 }}>
-                  第四届Hackathon项目排行榜
+                  <span>第四届Hackathon项目排行榜</span>
+                  <span className="text-xs font-normal px-2 py-1 rounded" style={{
+                    color: '#ffd700',
+                    background: 'rgba(255, 215, 0, 0.1)',
+                    border: '1px solid rgba(255, 215, 0, 0.3)',
+                    textShadow: 'none'
+                  }}>
+                    ⚠️ 民间自制排行榜，数据仅供参考，不代表官方成绩
+                  </span>
                 </h1>
                 <p className="mt-1.5 text-sm tracking-wider uppercase" style={{ color: '#b8c5e0', letterSpacing: '0.2em' }}>
                   <span className="inline-block mr-2" style={{ color: '#00d9ff' }}>&gt;&gt;</span>
