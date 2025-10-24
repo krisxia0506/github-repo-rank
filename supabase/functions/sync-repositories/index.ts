@@ -40,7 +40,7 @@ async function fetchRepositoryStats(
 
   // Fetch basic repo info
   console.log(`[${owner}/${repo}] 获取基本信息...`)
-  const { data: repoData } = await octokit.repos.get({ owner, repo })
+  const { data: repoData } = await octokit.rest.repos.get({ owner, repo })
   console.log(`[${owner}/${repo}] 基本信息: stars=${repoData.stargazers_count}, forks=${repoData.forks_count}, size=${repoData.size}KB`)
 
   // Fetch additional data in parallel
@@ -54,7 +54,7 @@ async function fetchRepositoryStats(
     issuesData,
   ] = await Promise.all([
     // Branches count
-    octokit.repos
+    octokit.rest.repos
       .listBranches({ owner, repo, per_page: 100 })
       .then((res) => {
         console.log(`[${owner}/${repo}] 分支数: ${res.data.length}`)
@@ -66,7 +66,7 @@ async function fetchRepositoryStats(
       }),
 
     // Releases count
-    octokit.repos
+    octokit.rest.repos
       .listReleases({ owner, repo, per_page: 100 })
       .then((res) => {
         console.log(`[${owner}/${repo}] 发布版本数: ${res.data.length}`)
@@ -78,7 +78,7 @@ async function fetchRepositoryStats(
       }),
 
     // Contributors count
-    octokit.repos
+    octokit.rest.repos
       .listContributors({ owner, repo, per_page: 100, anon: 'true' })
       .then((res) => {
         console.log(`[${owner}/${repo}] 贡献者数: ${res.data.length}`)
@@ -90,7 +90,7 @@ async function fetchRepositoryStats(
       }),
 
     // Commit activity (last 52 weeks)
-    octokit.repos
+    octokit.rest.repos
       .getCommitActivityStats({ owner, repo })
       .then((res) => {
         // GitHub returns 202 when stats are being computed, or empty object when not ready
@@ -111,8 +111,8 @@ async function fetchRepositoryStats(
 
     // Pull requests (open + closed) - using search API for accuracy
     Promise.all([
-      octokit.search
-        .issues({ q: `repo:${owner}/${repo} is:pr is:open`, per_page: 1 })
+      octokit.rest.search
+        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:pr is:open`, per_page: 1 })
         .then((res) => {
           const count = res.data.total_count
           console.log(`[${owner}/${repo}] 开放的 PR 数: ${count}`)
@@ -122,8 +122,8 @@ async function fetchRepositoryStats(
           console.error(`[${owner}/${repo}] 获取开放 PR 数失败:`, err.message)
           return 0
         }),
-      octokit.search
-        .issues({ q: `repo:${owner}/${repo} is:pr is:closed`, per_page: 1 })
+      octokit.rest.search
+        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:pr is:closed`, per_page: 1 })
         .then((res) => {
           const count = res.data.total_count
           console.log(`[${owner}/${repo}] 关闭的 PR 数: ${count}`)
@@ -137,8 +137,8 @@ async function fetchRepositoryStats(
 
     // Issues (open + closed, excluding PRs) - using search API for accuracy
     Promise.all([
-      octokit.search
-        .issues({ q: `repo:${owner}/${repo} is:issue is:open`, per_page: 1 })
+      octokit.rest.search
+        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:issue is:open`, per_page: 1 })
         .then((res) => {
           const count = res.data.total_count
           console.log(`[${owner}/${repo}] 开放的 Issue 数: ${count}`)
@@ -148,8 +148,8 @@ async function fetchRepositoryStats(
           console.error(`[${owner}/${repo}] 获取开放 Issue 数失败:`, err.message)
           return 0
         }),
-      octokit.search
-        .issues({ q: `repo:${owner}/${repo} is:issue is:closed`, per_page: 1 })
+      octokit.rest.search
+        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:issue is:closed`, per_page: 1 })
         .then((res) => {
           const count = res.data.total_count
           console.log(`[${owner}/${repo}] 关闭的 Issue 数: ${count}`)
@@ -198,7 +198,7 @@ async function fetchRepositoryStats(
 
       // Get total commits count from default branch
       const defaultBranch = repoData.default_branch || 'main'
-      const { data: allCommits } = await octokit.repos.listCommits({
+      const { data: allCommits } = await octokit.rest.repos.listCommits({
         owner,
         repo,
         sha: defaultBranch,
@@ -228,7 +228,7 @@ async function fetchRepositoryStats(
   // Get last commit date
   try {
     console.log(`[${owner}/${repo}] 获取最后一次提交日期...`)
-    const { data: commits } = await octokit.repos.listCommits({
+    const { data: commits } = await octokit.rest.repos.listCommits({
       owner,
       repo,
       per_page: 1,
