@@ -58,11 +58,11 @@ export default async function Home() {
                   color: '#ffffff',
                   textShadow: '0 0 5px rgba(0, 255, 65, 0.5), 0 0 10px rgba(0, 217, 255, 0.3), 2px 2px 0px rgba(0, 217, 255, 0.5)'
                 }}>
-                  第四届黑客松项目排行榜
+                  第四届Hackathon项目排行榜
                 </h1>
                 <p className="mt-3 text-base tracking-wider uppercase" style={{ color: '#b8c5e0', letterSpacing: '0.2em' }}>
                   <span className="inline-block mr-2" style={{ color: '#00d9ff' }}>&gt;&gt;</span>
-                  发现和追踪最具创新力的黑客松项目
+                  发现和追踪最具创新力的Hackathon项目
                 </p>
                 <div className="mt-2 flex gap-2">
                   <span className="text-xs px-2 py-1 rounded border" style={{
@@ -166,7 +166,7 @@ export default async function Home() {
               <span className="font-bold" style={{ color: '#00ff41' }}>[实时更新]</span> 数据每5分钟自动同步 <span style={{ color: '#00d9ff' }}>|</span> 排名基于 GitHub 统计数据
             </p>
             <p className="mb-3 text-sm">
-              七牛云第四届黑客松 <span style={{ color: '#00d9ff' }}>●</span> 技术栈: Next.js 16 + Supabase + GitHub API
+              七牛云第四届Hackathon <span style={{ color: '#00d9ff' }}>●</span> 技术栈: Next.js 16 + Supabase + GitHub API
             </p>
             <p className="mt-4">
               <a

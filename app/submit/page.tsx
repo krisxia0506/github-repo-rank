@@ -3,8 +3,8 @@ import { SubmitForm } from '@/components/SubmitForm'
 import { CyberBackground } from '@/components/CyberBackground'
 
 export const metadata = {
-  title: '提交仓库 - 七牛云第四届黑客松',
-  description: '提交您的黑客松项目到排行榜',
+  title: '提交仓库 - 七牛云第四届Hackathon',
+  description: '提交您的Hackathon项目到排行榜',
 }
 
 export default function SubmitPage() {
@@ -40,11 +40,11 @@ export default function SubmitPage() {
                   color: '#ffffff',
                   textShadow: '0 0 5px rgba(0, 255, 65, 0.5), 0 0 10px rgba(0, 217, 255, 0.3), 2px 2px 0px rgba(0, 217, 255, 0.5)'
                 }}>
-                  提交黑客松项目
+                  提交Hackathon项目
                 </h1>
                 <p className="mt-3 text-base tracking-wider uppercase" style={{ color: '#b8c5e0', letterSpacing: '0.2em' }}>
                   <span className="inline-block mr-2" style={{ color: '#00d9ff' }}>&gt;&gt;</span>
-                  将您的项目添加到七牛云第四届黑客松排行榜
+                  将您的项目添加到七牛云第四届Hackathon排行榜
                 </p>
               </div>
             </div>
