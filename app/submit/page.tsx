@@ -26,7 +26,7 @@ export default function SubmitPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
               {/* 七牛云 Logo with Glow */}
-              <div className="relative group">
+              {/* <div className="relative group">
                 <div className="absolute inset-0 bg-[#00ff41] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
                 <img
                   src="https://dn-mars-assets.qbox.me/qiniulog/img-slogan-blue-en.png"
@@ -34,6 +34,16 @@ export default function SubmitPage() {
                   className="h-14 object-contain relative z-10 filter brightness-125"
                   style={{ filter: 'drop-shadow(0 0 10px rgba(0, 255, 65, 0.5))' }}
                 />
+              </div> */}
+              {/* 牛字 Logo */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-[#00ff41] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
+                <div className="text-6xl font-bold relative z-10 transition-all duration-300 group-hover:scale-110" style={{
+                  color: '#00ff41',
+                  textShadow: '0 0 10px rgba(0, 255, 65, 0.8), 0 0 20px rgba(0, 255, 65, 0.5), 0 0 30px rgba(0, 217, 255, 0.3)'
+                }}>
+                  牛
+                </div>
               </div>
               <div>
                 <h1 className="text-4xl font-bold glitch-effect" style={{
