@@ -36,10 +36,15 @@ async function fetchRepositoryStats(
   owner: string,
   repo: string
 ): Promise<GitHubStats> {
+  console.log(`[${owner}/${repo}] 开始获取仓库统计数据...`)
+
   // Fetch basic repo info
+  console.log(`[${owner}/${repo}] 获取基本信息...`)
   const { data: repoData } = await octokit.repos.get({ owner, repo })
+  console.log(`[${owner}/${repo}] 基本信息: stars=${repoData.stargazers_count}, forks=${repoData.forks_count}, size=${repoData.size}KB`)
 
   // Fetch additional data in parallel
+  console.log(`[${owner}/${repo}] 开始并行获取详细数据...`)
   const [
     branchesData,
     releasesData,
@@ -51,26 +56,58 @@ async function fetchRepositoryStats(
     // Branches count
     octokit.repos
       .listBranches({ owner, repo, per_page: 100 })
-      .then((res) => res.data.length)
-      .catch(() => 0),
+      .then((res) => {
+        console.log(`[${owner}/${repo}] 分支数: ${res.data.length}`)
+        return res.data.length
+      })
+      .catch((err: Error) => {
+        console.error(`[${owner}/${repo}] 获取分支失败:`, err.message)
+        return 0
+      }),
 
     // Releases count
     octokit.repos
       .listReleases({ owner, repo, per_page: 100 })
-      .then((res) => res.data.length)
-      .catch(() => 0),
+      .then((res) => {
+        console.log(`[${owner}/${repo}] 发布版本数: ${res.data.length}`)
+        return res.data.length
+      })
+      .catch((err: Error) => {
+        console.error(`[${owner}/${repo}] 获取发布版本失败:`, err.message)
+        return 0
+      }),
 
     // Contributors count
     octokit.repos
       .listContributors({ owner, repo, per_page: 100, anon: 'true' })
-      .then((res) => res.data.length)
-      .catch(() => 0),
+      .then((res) => {
+        console.log(`[${owner}/${repo}] 贡献者数: ${res.data.length}`)
+        return res.data.length
+      })
+      .catch((err: Error) => {
+        console.error(`[${owner}/${repo}] 获取贡献者失败:`, err.message)
+        return 0
+      }),
 
     // Commit activity (last 52 weeks)
     octokit.repos
       .getCommitActivityStats({ owner, repo })
-      .then((res) => res.data)
-      .catch(() => []),
+      .then((res) => {
+        // GitHub returns 202 when stats are being computed, or empty object when not ready
+        if (res.status === 202) {
+          console.warn(`[${owner}/${repo}] 提交统计正在计算中 (202), 稍后重试`)
+          return []
+        }
+
+        // Ensure we have an array
+        const data = Array.isArray(res.data) ? res.data : []
+        console.log(`[${owner}/${repo}] 提交活动数据获取成功, 周数: ${data.length}`)
+        return data
+      })
+      .catch((err: Error) => {
+        console.error(`[${owner}/${repo}] 获取提交活动失败:`, err.message)
+        return []
+      }),
 
     // Pull requests (open + closed)
     Promise.all([
@@ -78,13 +115,17 @@ async function fetchRepositoryStats(
         .list({ owner, repo, state: 'open', per_page: 1 })
         .then((res) => {
           const linkHeader = res.headers.link
-          return parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.length
+          const count = parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.length
+          console.log(`[${owner}/${repo}] 开放的 PR 数: ${count}`)
+          return count
         }),
       octokit.pulls
         .list({ owner, repo, state: 'closed', per_page: 1 })
         .then((res) => {
           const linkHeader = res.headers.link
-          return parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.length
+          const count = parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.length
+          console.log(`[${owner}/${repo}] 关闭的 PR 数: ${count}`)
+          return count
         }),
     ]),
 
@@ -94,18 +135,23 @@ async function fetchRepositoryStats(
         .listForRepo({ owner, repo, state: 'open', per_page: 1 })
         .then((res) => {
           const linkHeader = res.headers.link
-          return parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.filter(issue => !issue.pull_request).length
+          const count = parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.filter((issue: any) => !issue.pull_request).length
+          console.log(`[${owner}/${repo}] 开放的 Issue 数: ${count}`)
+          return count
         }),
       octokit.issues
         .listForRepo({ owner, repo, state: 'closed', per_page: 1 })
         .then((res) => {
           const linkHeader = res.headers.link
-          return parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.filter(issue => !issue.pull_request).length
+          const count = parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.filter((issue: any) => !issue.pull_request).length
+          console.log(`[${owner}/${repo}] 关闭的 Issue 数: ${count}`)
+          return count
         }),
     ]),
   ])
 
   // Calculate commit statistics
+  console.log(`[${owner}/${repo}] 开始计算提交统计...`)
   const now = Date.now()
   const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000
   const oneMonthAgo = now - 30 * 24 * 60 * 60 * 1000
@@ -116,6 +162,7 @@ async function fetchRepositoryStats(
   let lastCommitDate: string | null = null
 
   if (Array.isArray(commitsData) && commitsData.length > 0) {
+    console.log(`[${owner}/${repo}] 提交数据类型: Array, 长度: ${commitsData.length}`)
     commitsData.forEach((week: any) => {
       const weekTimestamp = week.week * 1000
       const weekTotal = week.total || 0
@@ -129,26 +176,67 @@ async function fetchRepositoryStats(
         commitsLastWeek += weekTotal
       }
     })
+    console.log(`[${owner}/${repo}] 提交统计: 总数=${totalCommits}, 本月=${commitsLastMonth}, 本周=${commitsLastWeek}`)
+  } else {
+    console.warn(`[${owner}/${repo}] 警告: 提交活动统计数据不可用, 使用备用方案`)
 
-    // Get last commit date
+    // Fallback: Use listCommits to get total count and recent commits
     try {
-      const { data: commits } = await octokit.repos.listCommits({
+      console.log(`[${owner}/${repo}] 使用 listCommits API 获取提交统计...`)
+
+      // Get total commits count from default branch
+      const defaultBranch = repoData.default_branch || 'main'
+      const { data: allCommits } = await octokit.repos.listCommits({
         owner,
         repo,
-        per_page: 1,
+        sha: defaultBranch,
+        per_page: 100, // Get last 100 commits
       })
-      if (commits.length > 0) {
-        lastCommitDate = commits[0].commit.committer?.date || null
-      }
-    } catch {
+
+      totalCommits = allCommits.length
+      console.log(`[${owner}/${repo}] 从最近 100 次提交中获取: 总数=${totalCommits}`)
+
+      // Calculate recent commits
+      allCommits.forEach((commit: any) => {
+        const commitDate = new Date(commit.commit.committer?.date || commit.commit.author?.date).getTime()
+        if (commitDate >= oneMonthAgo) {
+          commitsLastMonth++
+        }
+        if (commitDate >= oneWeekAgo) {
+          commitsLastWeek++
+        }
+      })
+
+      console.log(`[${owner}/${repo}] 备用方案统计: 本月=${commitsLastMonth}, 本周=${commitsLastWeek}`)
+    } catch (err) {
+      console.error(`[${owner}/${repo}] 备用方案也失败:`, err instanceof Error ? err.message : err)
+    }
+  }
+
+  // Get last commit date
+  try {
+    console.log(`[${owner}/${repo}] 获取最后一次提交日期...`)
+    const { data: commits } = await octokit.repos.listCommits({
+      owner,
+      repo,
+      per_page: 1,
+    })
+    if (commits.length > 0) {
+      lastCommitDate = commits[0].commit.committer?.date || commits[0].commit.author?.date || null
+      console.log(`[${owner}/${repo}] 最后提交日期: ${lastCommitDate}`)
+    } else {
+      console.log(`[${owner}/${repo}] 未找到提交记录`)
       lastCommitDate = repoData.pushed_at
     }
+  } catch (err) {
+    console.error(`[${owner}/${repo}] 获取最后提交日期失败, 使用 pushed_at: ${repoData.pushed_at}`, err instanceof Error ? err.message : err)
+    lastCommitDate = repoData.pushed_at
   }
 
   const [openPRs, closedPRs] = pullRequestsData
   const [openIssues, closedIssues] = issuesData
 
-  return {
+  const stats = {
     stars_count: repoData.stargazers_count,
     forks_count: repoData.forks_count,
     watchers_count: repoData.watchers_count,
@@ -165,6 +253,9 @@ async function fetchRepositoryStats(
     commits_last_month: commitsLastMonth,
     commits_last_week: commitsLastWeek,
   }
+
+  console.log(`[${owner}/${repo}] 数据获取完成! 汇总:`, JSON.stringify(stats, null, 2))
+  return stats
 }
 
 async function updateRepositoryStats(
@@ -175,9 +266,11 @@ async function updateRepositoryStats(
   name: string
 ) {
   const startTime = Date.now()
+  console.log(`\n========== [${owner}/${name}] 开始同步仓库 ==========`)
 
   try {
     // Log sync start
+    console.log(`[${owner}/${name}] 记录同步开始日志...`)
     await supabase.from('sync_logs').insert({
       repository_id: repositoryId,
       sync_type: 'scheduled',
@@ -186,10 +279,12 @@ async function updateRepositoryStats(
     })
 
     // Fetch latest stats from GitHub
+    console.log(`[${owner}/${name}] 从 GitHub 获取最新统计数据...`)
     const githubStats = await fetchRepositoryStats(octokit, owner, name)
 
     // Check if stats already exist for today
     const today = new Date().toISOString().split('T')[0]
+    console.log(`[${owner}/${name}] 检查今天 (${today}) 是否已有统计记录...`)
     const { data: existingStats } = await supabase
       .from('repository_stats')
       .select('id')
@@ -219,18 +314,21 @@ async function updateRepositoryStats(
 
     if (existingStats) {
       // Update existing stats
+      console.log(`[${owner}/${name}] 更新已有的统计记录 (id: ${existingStats.id})...`)
       await supabase
         .from('repository_stats')
         .update(statsData)
         .eq('id', existingStats.id)
     } else {
       // Insert new stats
+      console.log(`[${owner}/${name}] 插入新的统计记录...`)
       await supabase
         .from('repository_stats')
         .insert(statsData)
     }
 
     // Update last_synced_at
+    console.log(`[${owner}/${name}] 更新 last_synced_at 时间戳...`)
     await supabase
       .from('repositories')
       .update({ last_synced_at: new Date().toISOString() })
@@ -238,6 +336,7 @@ async function updateRepositoryStats(
 
     // Log sync completion
     const duration = Date.now() - startTime
+    console.log(`[${owner}/${name}] 记录同步成功日志...`)
     await supabase.from('sync_logs').insert({
       repository_id: repositoryId,
       sync_type: 'scheduled',
@@ -247,12 +346,17 @@ async function updateRepositoryStats(
       duration_ms: duration,
     })
 
+    console.log(`[${owner}/${name}] ✅ 同步成功! 耗时: ${duration}ms`)
     return { success: true, duration }
   } catch (error) {
     const duration = Date.now() - startTime
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
 
+    console.error(`[${owner}/${name}] ❌ 同步失败! 错误:`, errorMessage)
+    console.error(`[${owner}/${name}] 错误详情:`, error)
+
     // Log sync failure
+    console.log(`[${owner}/${name}] 记录同步失败日志...`)
     await supabase.from('sync_logs').insert({
       repository_id: repositoryId,
       sync_type: 'scheduled',
@@ -273,8 +377,13 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  console.log('\n🚀 ========== Edge Function 启动 ==========')
+  console.log('请求方法:', req.method)
+  console.log('请求时间:', new Date().toISOString())
+
   try {
     // Get environment variables
+    console.log('检查环境变量...')
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     const githubToken = Deno.env.get('GITHUB_TOKEN')
@@ -282,24 +391,30 @@ Deno.serve(async (req) => {
     if (!supabaseUrl || !supabaseServiceKey || !githubToken) {
       throw new Error('Missing required environment variables')
     }
+    console.log('✅ 环境变量验证通过')
 
     // Create Supabase client with service role key
+    console.log('创建 Supabase 客户端...')
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Create GitHub client
+    console.log('创建 GitHub 客户端...')
     const octokit = new Octokit({ auth: githubToken })
 
     // Get all active repositories
+    console.log('查询活跃的仓库列表...')
     const { data: repositories, error: fetchError } = await supabase
       .from('repositories')
       .select('id, owner, name, full_name')
       .eq('is_active', true)
 
     if (fetchError) {
+      console.error('❌ 查询仓库失败:', fetchError)
       throw fetchError
     }
 
     if (!repositories || repositories.length === 0) {
+      console.log('⚠️  没有需要同步的仓库')
       return new Response(
         JSON.stringify({
           success: true,
@@ -313,6 +428,8 @@ Deno.serve(async (req) => {
       )
     }
 
+    console.log(`📦 找到 ${repositories.length} 个活跃仓库需要同步`)
+
     const results = {
       total: repositories.length,
       success: 0,
@@ -323,6 +440,7 @@ Deno.serve(async (req) => {
     // Sync repositories
     for (const repo of repositories as Repository[]) {
       try {
+        console.log(`\n进度: [${results.success + results.failed + 1}/${repositories.length}]`)
         await updateRepositoryStats(
           supabase,
           octokit,
@@ -331,9 +449,11 @@ Deno.serve(async (req) => {
           repo.name
         )
         results.success++
+        console.log(`当前进度: 成功 ${results.success}, 失败 ${results.failed}`)
       } catch (error) {
         results.failed++
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        console.error(`仓库 ${repo.full_name} 同步失败:`, errorMessage)
         results.errors.push({
           repo: repo.full_name,
           error: errorMessage,
@@ -341,7 +461,10 @@ Deno.serve(async (req) => {
       }
 
       // Add a small delay to avoid hitting rate limits
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (results.success + results.failed < repositories.length) {
+        console.log('等待 1 秒后继续下一个仓库...')
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+      }
     }
 
     return new Response(
