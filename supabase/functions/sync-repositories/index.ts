@@ -268,15 +268,29 @@ async function updateRepositoryStats(
   const startTime = Date.now()
   console.log(`\n========== [${owner}/${name}] 开始同步仓库 ==========`)
 
+  // Store sync log ID to update later
+  let syncLogId: string | null = null
+
   try {
     // Log sync start
     console.log(`[${owner}/${name}] 记录同步开始日志...`)
-    await supabase.from('sync_logs').insert({
-      repository_id: repositoryId,
-      sync_type: 'scheduled',
-      status: 'in_progress',
-      started_at: new Date().toISOString(),
-    })
+    const { data: syncLog, error: syncLogError } = await supabase
+      .from('sync_logs')
+      .insert({
+        repository_id: repositoryId,
+        sync_type: 'scheduled',
+        status: 'in_progress',
+        started_at: new Date().toISOString(),
+      })
+      .select('id')
+      .single()
+
+    if (syncLogError) {
+      console.error(`[${owner}/${name}] 创建同步日志失败:`, syncLogError)
+    } else {
+      syncLogId = syncLog?.id
+      console.log(`[${owner}/${name}] 同步日志已创建 (id: ${syncLogId})`)
+    }
 
     // Fetch latest stats from GitHub
     console.log(`[${owner}/${name}] 从 GitHub 获取最新统计数据...`)
@@ -337,14 +351,30 @@ async function updateRepositoryStats(
     // Log sync completion
     const duration = Date.now() - startTime
     console.log(`[${owner}/${name}] 记录同步成功日志...`)
-    await supabase.from('sync_logs').insert({
-      repository_id: repositoryId,
-      sync_type: 'scheduled',
-      status: 'success',
-      started_at: new Date(startTime).toISOString(),
-      completed_at: new Date().toISOString(),
-      duration_ms: duration,
-    })
+
+    if (syncLogId) {
+      // Update the existing sync log
+      await supabase
+        .from('sync_logs')
+        .update({
+          status: 'success',
+          completed_at: new Date().toISOString(),
+          duration_ms: duration,
+        })
+        .eq('id', syncLogId)
+      console.log(`[${owner}/${name}] 同步日志已更新 (id: ${syncLogId})`)
+    } else {
+      // Fallback: insert new record if we couldn't create one at the start
+      await supabase.from('sync_logs').insert({
+        repository_id: repositoryId,
+        sync_type: 'scheduled',
+        status: 'success',
+        started_at: new Date(startTime).toISOString(),
+        completed_at: new Date().toISOString(),
+        duration_ms: duration,
+      })
+      console.log(`[${owner}/${name}] 同步日志已创建 (备用方案)`)
+    }
 
     console.log(`[${owner}/${name}] ✅ 同步成功! 耗时: ${duration}ms`)
     return { success: true, duration }
@@ -357,15 +387,32 @@ async function updateRepositoryStats(
 
     // Log sync failure
     console.log(`[${owner}/${name}] 记录同步失败日志...`)
-    await supabase.from('sync_logs').insert({
-      repository_id: repositoryId,
-      sync_type: 'scheduled',
-      status: 'failed',
-      error_message: errorMessage,
-      started_at: new Date(startTime).toISOString(),
-      completed_at: new Date().toISOString(),
-      duration_ms: duration,
-    })
+
+    if (syncLogId) {
+      // Update the existing sync log
+      await supabase
+        .from('sync_logs')
+        .update({
+          status: 'failed',
+          error_message: errorMessage,
+          completed_at: new Date().toISOString(),
+          duration_ms: duration,
+        })
+        .eq('id', syncLogId)
+      console.log(`[${owner}/${name}] 同步日志已更新 (id: ${syncLogId})`)
+    } else {
+      // Fallback: insert new record if we couldn't create one at the start
+      await supabase.from('sync_logs').insert({
+        repository_id: repositoryId,
+        sync_type: 'scheduled',
+        status: 'failed',
+        error_message: errorMessage,
+        started_at: new Date(startTime).toISOString(),
+        completed_at: new Date().toISOString(),
+        duration_ms: duration,
+      })
+      console.log(`[${owner}/${name}] 同步日志已创建 (备用方案)`)
+    }
 
     throw error
   }
