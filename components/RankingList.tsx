@@ -24,6 +24,8 @@ interface Repository {
   watchers_count?: number | null
   open_issues_count?: number | null
   open_prs_count?: number | null
+  closed_issues_count?: number | null
+  closed_prs_count?: number | null
   branches_count?: number | null
   releases_count?: number | null
   commits_last_week?: number | null
@@ -56,12 +58,12 @@ export function RankingList({ initialRepositories }: RankingListProps) {
           bValue = b.commits_count
           break
         case 'issues':
-          aValue = a.open_issues_count
-          bValue = b.open_issues_count
+          aValue = (a.open_issues_count || 0) + (a.closed_issues_count || 0)
+          bValue = (b.open_issues_count || 0) + (b.closed_issues_count || 0)
           break
         case 'prs':
-          aValue = a.open_prs_count
-          bValue = b.open_prs_count
+          aValue = (a.open_prs_count || 0) + (a.closed_prs_count || 0)
+          bValue = (b.open_prs_count || 0) + (b.closed_prs_count || 0)
           break
         case 'branches':
           aValue = a.branches_count

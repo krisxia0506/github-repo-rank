@@ -112,7 +112,7 @@ async function fetchRepositoryStats(
     // Pull requests (open + closed) - using search API for accuracy
     Promise.all([
       octokit.search
-        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:pr is:open`, per_page: 1 })
+        .issues({ q: `repo:${owner}/${repo} is:pr is:open`, per_page: 1 })
         .then((res) => {
           const count = res.data.total_count
           console.log(`[${owner}/${repo}] 开放的 PR 数: ${count}`)
@@ -123,7 +123,7 @@ async function fetchRepositoryStats(
           return 0
         }),
       octokit.search
-        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:pr is:closed`, per_page: 1 })
+        .issues({ q: `repo:${owner}/${repo} is:pr is:closed`, per_page: 1 })
         .then((res) => {
           const count = res.data.total_count
           console.log(`[${owner}/${repo}] 关闭的 PR 数: ${count}`)
@@ -138,7 +138,7 @@ async function fetchRepositoryStats(
     // Issues (open + closed, excluding PRs) - using search API for accuracy
     Promise.all([
       octokit.search
-        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:issue is:open`, per_page: 1 })
+        .issues({ q: `repo:${owner}/${repo} is:issue is:open`, per_page: 1 })
         .then((res) => {
           const count = res.data.total_count
           console.log(`[${owner}/${repo}] 开放的 Issue 数: ${count}`)
@@ -149,7 +149,7 @@ async function fetchRepositoryStats(
           return 0
         }),
       octokit.search
-        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:issue is:closed`, per_page: 1 })
+        .issues({ q: `repo:${owner}/${repo} is:issue is:closed`, per_page: 1 })
         .then((res) => {
           const count = res.data.total_count
           console.log(`[${owner}/${repo}] 关闭的 Issue 数: ${count}`)

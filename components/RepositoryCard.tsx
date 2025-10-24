@@ -23,6 +23,8 @@ interface RepositoryCardProps {
     watchers_count?: number | null
     open_issues_count?: number | null
     open_prs_count?: number | null
+    closed_issues_count?: number | null
+    closed_prs_count?: number | null
     branches_count?: number | null
     releases_count?: number | null
     commits_last_week?: number | null
@@ -186,25 +188,25 @@ export function RepositoryCard({ repository, showRank = true, rankType = 'stars'
           </div>
         )}
 
-        {typeof repository.open_issues_count !== 'undefined' && repository.open_issues_count !== null && (
+        {(typeof repository.open_issues_count !== 'undefined' || typeof repository.closed_issues_count !== 'undefined') && (
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16" style={{ color: '#ffa500' }}>
               <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
               <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/>
             </svg>
             <span className="text-xs uppercase tracking-wider" style={{ color: '#a8b2d1' }}>Issues:</span>
-            <span className="font-mono font-bold" style={{ color: '#f0f0f0' }}>{repository.open_issues_count.toLocaleString()}</span>
+            <span className="font-mono font-bold" style={{ color: '#f0f0f0' }}>{((repository.open_issues_count || 0) + (repository.closed_issues_count || 0)).toLocaleString()}</span>
           </div>
         )}
 
-        {typeof repository.open_prs_count !== 'undefined' && repository.open_prs_count !== null && (
+        {(typeof repository.open_prs_count !== 'undefined' || typeof repository.closed_prs_count !== 'undefined') && (
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16" style={{ color: '#a855f7' }}>
               <path d="M3.5 3.75a.25.25 0 0 1 .25-.25h8.5a.25.25 0 0 1 .25.25v8.5a.25.25 0 0 1-.25.25h-8.5a.25.25 0 0 1-.25-.25v-8.5Z"/>
               <path d="M2.5 3.75c0-.966.784-1.75 1.75-1.75h7.5c.966 0 1.75.784 1.75 1.75v8.5a1.75 1.75 0 0 1-1.75 1.75h-7.5a1.75 1.75 0 0 1-1.75-1.75v-8.5Z"/>
             </svg>
             <span className="text-xs uppercase tracking-wider" style={{ color: '#a8b2d1' }}>PRs:</span>
-            <span className="font-mono font-bold" style={{ color: '#f0f0f0' }}>{repository.open_prs_count.toLocaleString()}</span>
+            <span className="font-mono font-bold" style={{ color: '#f0f0f0' }}>{((repository.open_prs_count || 0) + (repository.closed_prs_count || 0)).toLocaleString()}</span>
           </div>
         )}
 

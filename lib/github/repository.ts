@@ -81,11 +81,11 @@ export async function fetchRepositoryStats(
     // Pull requests (open + closed) - using search API for accuracy
     Promise.all([
       octokit.search
-        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:pr is:open`, per_page: 1 })
+        .issues({ q: `repo:${owner}/${repo} is:pr is:open`, per_page: 1 })
         .then((res) => res.data.total_count)
         .catch(() => 0),
       octokit.search
-        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:pr is:closed`, per_page: 1 })
+        .issues({ q: `repo:${owner}/${repo} is:pr is:closed`, per_page: 1 })
         .then((res) => res.data.total_count)
         .catch(() => 0),
     ]),
@@ -93,11 +93,11 @@ export async function fetchRepositoryStats(
     // Issues (open + closed, excluding PRs) - using search API for accuracy
     Promise.all([
       octokit.search
-        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:issue is:open`, per_page: 1 })
+        .issues({ q: `repo:${owner}/${repo} is:issue is:open`, per_page: 1 })
         .then((res) => res.data.total_count)
         .catch(() => 0),
       octokit.search
-        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:issue is:closed`, per_page: 1 })
+        .issues({ q: `repo:${owner}/${repo} is:issue is:closed`, per_page: 1 })
         .then((res) => res.data.total_count)
         .catch(() => 0),
     ]),
