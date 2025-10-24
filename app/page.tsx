@@ -153,7 +153,7 @@ export default async function Home() {
               <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, #00ff41, transparent)' }} />
             </div>
             <p className="mb-2 text-base">
-              <span className="font-bold" style={{ color: '#00ff41' }}>[实时更新]</span> 数据每小时自动同步 <span style={{ color: '#00d9ff' }}>|</span> 排名基于 GitHub 统计数据
+              <span className="font-bold" style={{ color: '#00ff41' }}>[实时更新]</span> 数据每5分钟自动同步 <span style={{ color: '#00d9ff' }}>|</span> 排名基于 GitHub 统计数据
             </p>
             <p className="mb-3 text-sm">
               七牛云第四届黑客松 <span style={{ color: '#00d9ff' }}>●</span> 技术栈: Next.js 16 + Supabase + GitHub API
