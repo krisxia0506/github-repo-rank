@@ -109,43 +109,55 @@ async function fetchRepositoryStats(
         return []
       }),
 
-    // Pull requests (open + closed)
+    // Pull requests (open + closed) - using search API for accuracy
     Promise.all([
-      octokit.pulls
-        .list({ owner, repo, state: 'open', per_page: 1 })
+      octokit.search
+        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:pr is:open`, per_page: 1 })
         .then((res) => {
-          const linkHeader = res.headers.link
-          const count = parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.length
+          const count = res.data.total_count
           console.log(`[${owner}/${repo}] 开放的 PR 数: ${count}`)
           return count
+        })
+        .catch((err: Error) => {
+          console.error(`[${owner}/${repo}] 获取开放 PR 数失败:`, err.message)
+          return 0
         }),
-      octokit.pulls
-        .list({ owner, repo, state: 'closed', per_page: 1 })
+      octokit.search
+        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:pr is:closed`, per_page: 1 })
         .then((res) => {
-          const linkHeader = res.headers.link
-          const count = parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.length
+          const count = res.data.total_count
           console.log(`[${owner}/${repo}] 关闭的 PR 数: ${count}`)
           return count
+        })
+        .catch((err: Error) => {
+          console.error(`[${owner}/${repo}] 获取关闭 PR 数失败:`, err.message)
+          return 0
         }),
     ]),
 
-    // Issues (open + closed, excluding PRs)
+    // Issues (open + closed, excluding PRs) - using search API for accuracy
     Promise.all([
-      octokit.issues
-        .listForRepo({ owner, repo, state: 'open', per_page: 1 })
+      octokit.search
+        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:issue is:open`, per_page: 1 })
         .then((res) => {
-          const linkHeader = res.headers.link
-          const count = parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.filter((issue: any) => !issue.pull_request).length
+          const count = res.data.total_count
           console.log(`[${owner}/${repo}] 开放的 Issue 数: ${count}`)
           return count
+        })
+        .catch((err: Error) => {
+          console.error(`[${owner}/${repo}] 获取开放 Issue 数失败:`, err.message)
+          return 0
         }),
-      octokit.issues
-        .listForRepo({ owner, repo, state: 'closed', per_page: 1 })
+      octokit.search
+        .issuesAndPullRequests({ q: `repo:${owner}/${repo} is:issue is:closed`, per_page: 1 })
         .then((res) => {
-          const linkHeader = res.headers.link
-          const count = parseInt(linkHeader?.match(/page=(\d+)>; rel="last"/)?.[1] || '0') || res.data.filter((issue: any) => !issue.pull_request).length
+          const count = res.data.total_count
           console.log(`[${owner}/${repo}] 关闭的 Issue 数: ${count}`)
           return count
+        })
+        .catch((err: Error) => {
+          console.error(`[${owner}/${repo}] 获取关闭 Issue 数失败:`, err.message)
+          return 0
         }),
     ]),
   ])
