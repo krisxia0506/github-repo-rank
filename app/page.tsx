@@ -174,6 +174,9 @@ export default async function Home() {
                 <span style={{ color: '#00d9ff' }}>&gt;&gt;</span>
               </a>
             </p>
+            <p className="mt-6 text-sm" style={{ color: '#a8b2d1' }}>
+              Made by <span style={{ color: '#00d9ff', fontWeight: 'bold' }}>@xiajiayi</span>
+            </p>
           </div>
         </div>
       </footer>
