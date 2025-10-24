@@ -64,7 +64,7 @@ export default async function Home() {
       {/* Header */}
       <header className="relative border-b border-[#00ff41]/20 backdrop-blur-sm bg-[#0a0e1a]/80 scan-line">
         <div className="absolute inset-0 bg-gradient-to-r from-[#00ff41]/5 via-transparent to-[#00d9ff]/5" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
               {/* 七牛云 Logo with Glow */}
@@ -80,7 +80,7 @@ export default async function Home() {
               {/* 牛字 Logo */}
               <div className="relative group">
                 <div className="absolute inset-0 bg-[#00ff41] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
-                <div className="text-6xl font-bold relative z-10 transition-all duration-300 group-hover:scale-110" style={{
+                <div className="text-4xl font-bold relative z-10 transition-all duration-300 group-hover:scale-110" style={{
                   color: '#00ff41',
                   textShadow: '0 0 10px rgba(0, 255, 65, 0.8), 0 0 20px rgba(0, 255, 65, 0.5), 0 0 30px rgba(0, 217, 255, 0.3)'
                 }}>
@@ -88,13 +88,13 @@ export default async function Home() {
                 </div>
               </div>
               <div>
-                <h1 className="text-4xl font-bold glitch-effect" style={{
+                <h1 className="text-2xl font-bold glitch-effect" style={{
                   color: '#ffffff',
                   textShadow: '0 0 5px rgba(0, 255, 65, 0.5), 0 0 10px rgba(0, 217, 255, 0.3), 2px 2px 0px rgba(0, 217, 255, 0.5)'
                 }}>
                   第四届Hackathon项目排行榜
                 </h1>
-                <p className="mt-3 text-base tracking-wider uppercase" style={{ color: '#b8c5e0', letterSpacing: '0.2em' }}>
+                <p className="mt-1.5 text-sm tracking-wider uppercase" style={{ color: '#b8c5e0', letterSpacing: '0.2em' }}>
                   <span className="inline-block mr-2" style={{ color: '#00d9ff' }}>&gt;&gt;</span>
                   发现和追踪最具创新力的Hackathon项目
                 </p>
@@ -128,7 +128,7 @@ export default async function Home() {
             </div>
             <Link
               href="/submit"
-              className="group relative px-8 py-4 font-bold tracking-wider uppercase transition-all duration-300"
+              className="group relative px-6 py-2.5 font-bold tracking-wider uppercase transition-all duration-300 text-sm"
               style={{
                 background: 'linear-gradient(135deg, rgba(0, 255, 65, 0.1) 0%, rgba(0, 217, 255, 0.1) 100%)',
                 border: '2px solid #00ff41',

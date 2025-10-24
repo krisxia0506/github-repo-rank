@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react'
 import { RankingTabs } from './RankingTabs'
-import { LanguageFilter } from './LanguageFilter'
 import { RepositoryCard } from './RepositoryCard'
 
 interface Repository {
@@ -40,27 +39,10 @@ interface RankingListProps {
 
 export function RankingList({ initialRepositories }: RankingListProps) {
   const [activeTab, setActiveTab] = useState<'stars' | 'commits' | 'issues' | 'prs' | 'branches'>('stars')
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
-
-  // Extract unique languages
-  const languages = useMemo(() => {
-    const langs = new Set<string>()
-    initialRepositories.forEach((repo) => {
-      if (repo.language) {
-        langs.add(repo.language)
-      }
-    })
-    return Array.from(langs).sort()
-  }, [initialRepositories])
 
   // Filter and sort repositories with dynamic ranking
   const filteredRepositories = useMemo(() => {
     let repos = initialRepositories
-
-    // Filter by language
-    if (selectedLanguage) {
-      repos = repos.filter((repo) => repo.language === selectedLanguage)
-    }
 
     // Sort by active tab
     const sortedRepos = repos.sort((a, b) => {
@@ -133,19 +115,11 @@ export function RankingList({ initialRepositories }: RankingListProps) {
     }
 
     return sortedRepos
-  }, [initialRepositories, selectedLanguage, activeTab])
+  }, [initialRepositories, activeTab])
 
   return (
     <div>
       <RankingTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-      {languages.length > 0 && (
-        <LanguageFilter
-          languages={languages}
-          selectedLanguage={selectedLanguage}
-          onLanguageChange={setSelectedLanguage}
-        />
-      )}
 
       <div className="space-y-4">
         {filteredRepositories.length > 0 ? (

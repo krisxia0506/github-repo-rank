@@ -15,8 +15,8 @@ export function RankingTabs({ activeTab, onTabChange }: RankingTabsProps) {
   ]
 
   return (
-    <div className="mb-8">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 p-2 rounded-lg backdrop-blur-sm relative" style={{
+    <div className="mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 p-1.5 rounded-lg backdrop-blur-sm relative" style={{
         background: 'rgba(0, 217, 255, 0.03)',
         border: '1px solid rgba(0, 217, 255, 0.2)'
       }}>
@@ -32,7 +32,7 @@ export function RankingTabs({ activeTab, onTabChange }: RankingTabsProps) {
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className="group relative px-4 py-3 font-bold transition-all duration-300 overflow-hidden"
+              className="group relative px-3 py-2 font-bold transition-all duration-300 overflow-hidden"
               style={{
                 background: isActive
                   ? `linear-gradient(135deg, ${tab.color}15 0%, ${tab.color}05 100%)`
@@ -50,10 +50,10 @@ export function RankingTabs({ activeTab, onTabChange }: RankingTabsProps) {
                 }}
               />
 
-              <div className="relative z-10 flex flex-col items-center gap-1">
-                <div className="flex items-center gap-2">
+              <div className="relative z-10 flex flex-col items-center gap-0.5">
+                <div className="flex items-center gap-1.5">
                   <span
-                    className="text-xl font-bold"
+                    className="text-lg font-bold"
                     style={{
                       textShadow: isActive ? `0 0 10px ${tab.color}` : 'none',
                       color: tab.color
@@ -62,7 +62,7 @@ export function RankingTabs({ activeTab, onTabChange }: RankingTabsProps) {
                     {tab.icon}
                   </span>
                   <span
-                    className="text-sm md:text-base tracking-wider font-mono"
+                    className="text-xs md:text-sm tracking-wider font-mono"
                     style={{
                       textShadow: isActive ? `0 0 10px ${tab.color}` : 'none'
                     }}
@@ -70,7 +70,7 @@ export function RankingTabs({ activeTab, onTabChange }: RankingTabsProps) {
                     {tab.label}
                   </span>
                 </div>
-                <span className="text-xs opacity-70 tracking-wide">{tab.sublabel}</span>
+                <span className="text-[10px] md:text-xs opacity-70 tracking-wide">{tab.sublabel}</span>
               </div>
 
               {/* Active indicator line */}
