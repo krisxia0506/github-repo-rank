@@ -1,13 +1,14 @@
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS pg_cron;    -- For scheduled jobs
 CREATE EXTENSION IF NOT EXISTS pg_net;     -- For HTTP requests
+CREATE EXTENSION IF NOT EXISTS vault;      -- For secure secret storage
 
 -- Store secrets in Vault (run these manually with your actual values)
 -- Replace YOUR_PROJECT_REF with your actual Supabase project reference
 -- Example: https://abcdefghijklmnop.supabase.co
 /*
 SELECT vault.create_secret('https://YOUR_PROJECT_REF.supabase.co', 'project_url');
-SELECT vault.create_secret('YOUR_SUPABASE_ANON_KEY', 'anon_key');
+SELECT vault.create_secret('YOUR_SUPABASE_PUBLISHABLE_KEY', 'publishable_key');
 */
 
 -- Create a function to trigger the Edge Function using Vault secrets
@@ -19,24 +20,24 @@ AS $$
 DECLARE
   request_id BIGINT;
   project_url TEXT;
-  anon_key TEXT;
+  publishable_key TEXT;
 BEGIN
   -- Get secrets from Vault
   SELECT decrypted_secret INTO project_url
   FROM vault.decrypted_secrets
   WHERE name = 'project_url';
 
-  SELECT decrypted_secret INTO anon_key
+  SELECT decrypted_secret INTO publishable_key
   FROM vault.decrypted_secrets
-  WHERE name = 'anon_key';
+  WHERE name = 'publishable_key';
 
   -- Validate secrets exist
   IF project_url IS NULL THEN
     RAISE EXCEPTION 'Vault secret "project_url" not found. Please run: SELECT vault.create_secret(''https://YOUR_PROJECT_REF.supabase.co'', ''project_url'');';
   END IF;
 
-  IF anon_key IS NULL THEN
-    RAISE EXCEPTION 'Vault secret "anon_key" not found. Please run: SELECT vault.create_secret(''YOUR_ANON_KEY'', ''anon_key'');';
+  IF publishable_key IS NULL THEN
+    RAISE EXCEPTION 'Vault secret "publishable_key" not found. Please run: SELECT vault.create_secret(''YOUR_PUBLISHABLE_KEY'', ''publishable_key'');';
   END IF;
 
   -- Make HTTP POST request to Edge Function
@@ -44,7 +45,7 @@ BEGIN
     url := project_url || '/functions/v1/sync-repositories',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'Authorization', 'Bearer ' || anon_key
+      'Authorization', 'Bearer ' || publishable_key
     ),
     body := jsonb_build_object(
       'triggered_at', now()::text
@@ -56,6 +57,7 @@ BEGIN
 
 EXCEPTION WHEN OTHERS THEN
   RAISE WARNING 'Failed to trigger repository sync: %', SQLERRM;
+  RAISE;  -- Re-throw to see in cron logs
 END;
 $$;
 
