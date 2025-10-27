@@ -1,6 +1,7 @@
 # GitHub 仓库排行榜
 
 一个实时的GitHub仓库排行榜平台，允许用户通过邀请码提交GitHub仓库链接，自动抓取并展示仓库的各项统计数据，支持多维度排序和对比。
+<img width="4218" height="2082" alt="image" src="https://github.com/user-attachments/assets/81d6da81-dfec-4155-b490-e9d730fccdb5" />
 
 ## 技术栈
 
